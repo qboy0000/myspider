@@ -49,7 +49,7 @@ class CNNVDSpider(scrapy.Spider):
         xdetail = lambda x: item_detail_sel.xpath(x).extract_first().replace('\r', '').replace('\n', '').replace('\t', '').strip() if item_detail_sel.xpath(x).extract_first() is not None else None
 
         cnnvd_id = xdetail('ul/li[1]/span/text()')
-        item['cnnvd_id']=cnnvd_id[-16:]
+        item['cnnvd_id']=cnnvd_id.split(u'：')[1]
         item['vuln_severity']=xdetail('ul/li[2]/a/text()')
         item['cve_id'] =xdetail('ul/li[3]/a/text()')
         item['vuln_type']=xdetail('ul/li[4]/a/text()')

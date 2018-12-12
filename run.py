@@ -4,4 +4,4 @@
 
 
 from scrapy.cmdline import execute
-execute(['scrapy', 'crawl', 'port_info'])
+execute(['scrapy', 'crawl', 'exploitdb'])

@@ -97,21 +97,51 @@ class ExploitDBItem(scrapy.Item,ItemBase):
 
 
     collection_name = "exploitdb_base"
-    key_id = "edb_id"
+    key_id = "id"
 
-    edb_id = scrapy.Field()
+    application_md5 = scrapy.Field()
+    application_path = scrapy.Field()
     author = scrapy.Field()
-    published = scrapy.Field()
-    cve_id = scrapy.Field()
-    vuln_type = scrapy.Field()
+    author_id = scrapy.Field()
+    code = scrapy.Field()
+    date_published = scrapy.Field()
+    description = scrapy.Field()
+    download = scrapy.Field()
+    id = scrapy.Field()
     platform = scrapy.Field()
-    aliases = scrapy.Field()
-    advisory = scrapy.Field()
+    platform_id = scrapy.Field()
+    port = scrapy.Field()
+    screenshot_path = scrapy.Field()
+    screenshot_thumb_path = scrapy.Field()
     tags = scrapy.Field()
+    type = scrapy.Field()
+    type_id = scrapy.Field()
     verified = scrapy.Field()
-    vuln_app = scrapy.Field()
-    exploit_code = scrapy.Field()
-    related_exploits = scrapy.Field()
+
+    # edb_id = scrapy.Field()
+    # author = scrapy.Field()
+    # published = scrapy.Field()
+    # cve_id = scrapy.Field()
+    # vuln_type = scrapy.Field()
+    # platform = scrapy.Field()
+    # aliases = scrapy.Field()
+    # advisory = scrapy.Field()
+    # tags = scrapy.Field()
+    # verified = scrapy.Field()
+    # vuln_app = scrapy.Field()
+    # exploit_code = scrapy.Field()
+    # related_exploits = scrapy.Field()
+
+
+class ExploitFileItem(scrapy.Item):
+    '''
+    NVD Json Feed Item
+    '''
+    file_prefix = "edb_"
+    file_id = scrapy.Field()
+    file_urls=scrapy.Field()
+    files = scrapy.Field()
+
 
 class TalosIntelligenceItem(scrapy.Item,ItemBase):
     collection_name = "talosintelligence_base"

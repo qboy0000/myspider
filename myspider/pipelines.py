@@ -77,3 +77,10 @@ class NVDJSONFeedPipeline(FilesPipeline):
                     gzipfile.close()
         return item
 
+class MyFileDownloadPipeline(FilesPipeline):
+    def file_path(self, request, response=None, info=None):
+        print "MyFileDownloadPipeline===>",info,request.url
+        file_name = request.url.split('?')[0].split('/')[-1]
+        path =  "{}/{}".format(info.spider.name,file_name)
+        return path
+        # return  super(MyFileDownloadPipeline,self).file_path(request,response=response,info=info)
