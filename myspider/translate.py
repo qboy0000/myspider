@@ -75,8 +75,11 @@ class PortInfo():
         # 数据库登录需要帐号密码的话
         # self.client.admin.authenticate(settings['MINGO_USER'], settings['MONGO_PSW'])
         self.port_table = self.client[settings['MONGO_DB']]['port_info']  # 获得数据库的句柄
-    def get_all_port_info(self):
-        return self.port_table.find()
+    def get_all_port_info(self,skip=0,limit=100):
+        queryset = self.port_table.find()
+        return queryset.skip(skip).limit(limit)
+    def count_port_info(self):
+        return self.port_table.count()
 
     @retry(retry_on_exception=retry_if_auto_reconnect_error, stop_max_attempt_number=2, wait_fixed=2000)
     def update(self,query,update_set):
@@ -85,24 +88,29 @@ class PortInfo():
 
 if __name__ == "__main__":
     portInfo = PortInfo()
-    port_info_list = portInfo.get_all_port_info()
 
-    for pi in port_info_list:
-        if 'description_bd' not in pi.keys():
-            try:
-                logger.info('translage port {}==>'.format(pi['port']))
-                purpose = pi['purpose']
-                purpose_bd = None
-                description_bd = None
-                if purpose is not None and len(purpose) >0:
-                    purpose_bd = translate_baidu(purpose)
-                description = pi['description']
-                if description is not None and len(description)>0:
-                    description_bd = translate_baidu(description)
-                portInfo.update(pi,{'$set':{'purpose_bd':purpose_bd,'description_bd':description_bd}})
-            except Exception as ex:
-                print "[error] ===>",pi['port']
-                logger.error(pi['port'])
-                logger.error(ex)
-        else:
-            logger.info("{} has translate".format(pi['port']))
+    index = 0
+    limit = 200
+    count = portInfo.count_port_info()
+    while(index * limit < count):
+        port_info_list = portInfo.get_all_port_info(index*limit,limit)
+        for pi in port_info_list:
+            if 'description_bd' not in pi.keys():
+                try:
+                    logger.info('translage port {}==>'.format(pi['port']))
+                    purpose = pi['purpose']
+                    purpose_bd = None
+                    description_bd = None
+                    if purpose is not None and len(purpose) >0:
+                        purpose_bd = translate_baidu(purpose)
+                    description = pi['description']
+                    if description is not None and len(description)>0:
+                        description_bd = translate_baidu(description)
+                    portInfo.update(pi,{'$set':{'purpose_bd':purpose_bd,'description_bd':description_bd}})
+                except Exception as ex:
+                    print "[error] ===>",pi['port']
+                    logger.error(pi['port'])
+                    logger.error(ex)
+            else:
+                logger.info("{} has translate".format(pi['port']))
+        index = index+1
