@@ -2,3 +2,4 @@ Scrapy==1.4.0
 pymongo==2.7.2
 requests
 bs4
+retrying
