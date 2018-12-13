@@ -9,17 +9,34 @@ import random
 import json
 from scrapy.conf import settings
 import pymongo
+from pymongo.errors import AutoReconnect
+from retrying import retry
 
-appid = '20181213000247791'  # 你的appid
-secretKey = 'ph9o2qkU_S_XyDAj1Cl8'  # 你的密钥
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)  # Log等级总开关
+
+
+logfile = "translate.log"
+fh = logging.FileHandler(logfile, mode='w')
+fh.setLevel(logging.INFO)  # 输出到file的log等级的开关
+
+formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
+appid = ''  # 你的appid
+secretKey = ''  # 你的密钥
 
 fromLang = 'en'
 toLang = 'zh'
 httpClient = httplib.HTTPConnection('api.fanyi.baidu.com')
 
-def translate(q):
+def translate_baidu(q):
     # global appid,secretKey,fromLang,toLang,httpClient
-
+    # print "translate_baidu==>",q
+    logger.debug("translate_baidu==>",q)
     myurl = '/api/trans/vip/translate'
     salt = random.randint(0, 10000)
 
@@ -44,19 +61,48 @@ def translate(q):
         if httpClient:
             httpClient.close()
 
-if __name__ == "__main__":
-    client = pymongo.MongoClient(host=settings['MONGO_HOST'], port=settings['MONGO_PORT'])
-    # 数据库登录需要帐号密码的话
-    # self.client.admin.authenticate(settings['MINGO_USER'], settings['MONGO_PSW'])
-    db = client[settings['MONGO_DB']]  # 获得数据库的句柄
-    port_info_list = db['port_info'].find()
-    for pi in port_info_list:
-        purpose = pi['purpose']
-        if purpose is not None and len(purpose) >0
+def retry_if_auto_reconnect_error(exception):
+    '''
+    Return True if we should retry (in this case when it's an AutoReconnect), False otherwise
+    :param exception:
+    :return:
+    '''
+    return isinstance(exception, AutoReconnect)
 
-    # obj = translate('apple')
-    # print obj['trans_result'][0]['dst']
-    # obj = translate(
-    #     'This is the primary port used by the world wide web (www) system. Web servers open this port then listen for incoming connections from web browsers. Similarly, when a web browser is given a remote address (like grc.com or amazon.com), it assumes that a remote web server will be listening for connections on port 80 at that location.')
-    # print obj
-    # print obj['trans_result'][0]['dst']
+class PortInfo():
+    def __init__(self):
+        self.client = pymongo.MongoClient(host=settings['MONGO_HOST'], port=settings['MONGO_PORT'])
+        # 数据库登录需要帐号密码的话
+        # self.client.admin.authenticate(settings['MINGO_USER'], settings['MONGO_PSW'])
+        self.port_table = self.client[settings['MONGO_DB']]['port_info']  # 获得数据库的句柄
+    def get_all_port_info(self):
+        return self.port_table.find()
+
+    @retry(retry_on_exception=retry_if_auto_reconnect_error, stop_max_attempt_number=2, wait_fixed=2000)
+    def update(self,query,update_set):
+        self.port_table.update(query,update_set)
+
+
+if __name__ == "__main__":
+    portInfo = PortInfo()
+    port_info_list = portInfo.get_all_port_info()
+
+    for pi in port_info_list:
+        if 'description_bd' not in pi.keys():
+            try:
+                logger.info('translage port {}==>'.format(pi['port']))
+                purpose = pi['purpose']
+                purpose_bd = None
+                description_bd = None
+                if purpose is not None and len(purpose) >0:
+                    purpose_bd = translate_baidu(purpose)
+                description = pi['description']
+                if description is not None and len(description)>0:
+                    description_bd = translate_baidu(description)
+                portInfo.update(pi,{'$set':{'purpose_bd':purpose_bd,'description_bd':description_bd}})
+            except Exception as ex:
+                print "[error] ===>",pi['port']
+                logger.error(pi['port'])
+                logger.error(ex)
+        else:
+            logger.info("{} has translate".format(pi['port']))
