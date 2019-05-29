@@ -4,6 +4,8 @@
 
 import scrapy
 from myspider.items import PortTcpUdpItem
+from scrapy.conf import settings
+import pymongo
 
 class PortTcpUdpItemSpider(scrapy.Spider):
     name = 'port_tcp_udp'
@@ -11,9 +13,24 @@ class PortTcpUdpItemSpider(scrapy.Spider):
 
     def start_requests(self):
         # yield scrapy.Request(url="http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-201609-627", callback=self.parseItem)
+
+        # self.client = pymongo.MongoClient(host=settings['MONGO_HOST'], port=settings['MONGO_PORT'])
+        # # 数据库登录需要帐号密码的话
+        # # self.client.admin.authenticate(settings['MINGO_USER'], settings['MONGO_PSW'])
+        # self.db = self.client[settings['MONGO_DB']]  # 获得数据库的句柄
+        # # port_tcp_udp  = self.db['port_tcp_udp'].find()
+        # port_list = []
+        # for p in range(0,65536):
+        #     obj = self.db['port_tcp_udp'].find_one({'port': p})
+        #     if  obj is None:
+        #         # print "get port==>",p
+        #         port_list.append(p)
+        #     else:
+        #         print "has port==>",p
+        # print "get port_list===>",port_list
         return [scrapy.FormRequest("https://www.speedguide.net/port.php?port={}".format(i),
                                # formdata={'qstartdate': '2018-03-01', 'qenddate': '2018-03-01'},
-                               callback=self.parseItem) for i in range(3800,5000)]
+                               callback=self.parseItem) for i in range(1600,65536)]
 
 
     def parseItem(self, response):

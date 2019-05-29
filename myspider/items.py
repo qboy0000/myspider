@@ -148,6 +148,9 @@ class TalosIntelligenceItem(scrapy.Item,ItemBase):
     key_id = 'report_id'
 
     report_id = scrapy.Field()
+    title = scrapy.Field()
+    title_bd = scrapy.Field()
+    cve_id = scrapy.Field()
 
 
 class NvdFeedItem(scrapy.Item):
