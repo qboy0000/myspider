@@ -23,8 +23,8 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 def translate_baidu(q):
-    appid = '20181213000247791'  # 你的appid
-    secretKey = 'ph9o2qkU_S_XyDAj1Cl8'  # 你的密钥
+    appid = ''  # 你的appid
+    secretKey = ''  # 你的密钥
 
     fromLang = 'en'
     toLang = 'zh'
