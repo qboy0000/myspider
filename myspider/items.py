@@ -196,3 +196,79 @@ class PortTcpUdpItem(scrapy.Item, ItemBase):
 
     port = scrapy.Field()
     detail = scrapy.Field()
+
+
+class TacticsItem(scrapy.Item,ItemBase):
+    collection_name = 'tactics'
+    key_id = 'tactic_id'
+
+    tactic_id = scrapy.Field()
+    tactic_name = scrapy.Field()
+    description = scrapy.Field()
+    url = scrapy.Field()
+    tactic_type = scrapy.Field()
+    order = scrapy.Field()
+
+class TacticTechniquesItem(scrapy.Item,ItemBase):
+    collection_name = 'tactic_tech'
+    key_id = 'tactic_tech_id'
+    tactic_tech_id = scrapy.Field()
+    tactic_id = scrapy.Field()
+    tech_id = scrapy.Field()
+    tech_name = scrapy.Field()
+    description = scrapy.Field()
+    url = scrapy.Field()
+    order = scrapy.Field()
+
+class TechniquesItem(scrapy.Item,ItemBase):
+    collection_name = 'techniques'
+    key_id = 'tech_id'
+
+    tech_id = scrapy.Field()
+    tech_name = scrapy.Field()
+    description = scrapy.Field()
+    tactic = scrapy.Field()
+    platform = scrapy.Field()
+    permissions_required = scrapy.Field()
+    data_sources = scrapy.Field()
+    version = scrapy.Field()
+    url = scrapy.Field()
+
+
+class GroupTechItem(scrapy.Item,ItemBase):
+    collection_name = 'group_item'
+    key_id = "group_tech"
+
+    group_id = scrapy.Field()
+    tech_id = scrapy.Field()
+    group_tech = scrapy.Field()
+    group_name = scrapy.Field()
+
+
+class GroupSoftItem(scrapy.Item,ItemBase):
+    collection_name = 'group_soft'
+    key_id = "group_soft"
+
+    group_id = scrapy.Field()
+    soft_id = scrapy.Field()
+    group_soft = scrapy.Field()
+    group_name = scrapy.Field()
+
+class SoftItem(scrapy.Item,ItemBase):
+    collection_name = 'soft_item'
+    key_id = "soft_id"
+
+    soft_id = scrapy.Field()
+    soft_name = scrapy.Field()
+    soft_type =scrapy.Field()
+    soft_platforms = scrapy.Field()
+    soft_version = scrapy.Field()
+    desc = scrapy.Field()
+
+class SoftTechItem(scrapy.Item,ItemBase):
+    collection_name = 'soft_tech'
+    key_id = "soft_tech"
+
+    tech_id = scrapy.Field()
+    soft_id = scrapy.Field()
+    soft_tech = scrapy.Field()
